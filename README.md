@@ -1,5 +1,7 @@
 # claudequeue
 
+[![CI](https://github.com/csabika98/claudequeue/actions/workflows/ci.yml/badge.svg)](https://github.com/csabika98/claudequeue/actions/workflows/ci.yml)
+
 Queue tasks for Claude Code to run autonomously — overnight, unattended, across multiple projects.
 
 Add tasks, hit Start, go to sleep. Claude works through the queue, handles rate limits automatically, and logs everything.
@@ -111,6 +113,37 @@ When running autonomously, Claude has access to:
 | `log_decision(decision, reason)` | Logs a decision to queue.md |
 | `get_current_task()` | Returns active task details |
 | `get_project_context()` | Returns full queue status |
+
+---
+
+## Development
+
+```bash
+npm install
+npm test          # vitest, run once
+npm run test:watch
+npm run coverage
+npm run typecheck # tsc against src and tests
+npm run build
+```
+
+CI runs typecheck, tests and the build on Node 20 and 22 for every push and
+pull request.
+
+The suite covers the pure-logic core: `queue.md` parsing and task lookup,
+status transitions and decision logging, and rate-limit detection with
+reset-time parsing under fake timers. The runner, scheduler and dashboard
+server are not covered yet — they spawn processes and bind ports, so they
+need an integration harness rather than unit tests.
+
+---
+
+## Design notes
+
+[`PLAN.md`](PLAN.md) is the original build plan: the core architecture,
+the milestone breakdown from config manager through MCP server to dashboard,
+and the session rules the agent follows while working a queue. It is worth
+reading before changing how tasks move between states.
 
 ---
 
