@@ -33,16 +33,16 @@
     "automation",
     "mcp"
   ],
-  "author": "ttedgar",
+  "author": "Csaba Sallai (https://github.com/csabika98)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ttedgar/claudequeue.git"
+    "url": "git+https://github.com/csabika98/claudequeue.git"
   },
   "bugs": {
-    "url": "https://github.com/ttedgar/claudequeue/issues"
+    "url": "https://github.com/csabika98/claudequeue/issues"
   },
-  "homepage": "https://github.com/ttedgar/claudequeue#readme",
+  "homepage": "https://github.com/csabika98/claudequeue#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "commander": "^14.0.3",
