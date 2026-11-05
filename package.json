@@ -12,7 +12,11 @@
     "build": "tsc && cp src/ui/index.html dist/ui/index.html",
     "dev": "node --loader ts-node/esm src/index.ts",
     "start": "node dist/index.js start",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "files": [
     "dist",
@@ -51,7 +55,9 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.2",
     "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "^4.1.12",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.12"
   }
 }
