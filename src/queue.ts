@@ -133,6 +133,23 @@ export function updateTask(
   fs.writeFileSync(queuePath, out.join("\n"));
 }
 
+const STATUS_NOTE_RE = /^>\s*(Started|Completed|Blocked):/i;
+
+/**
+ * Remove previously stamped status notes from a task body.
+ *
+ * The notes are regenerated on every transition, so leaving the old ones in
+ * place makes a task that moves PENDING -> ACTIVE -> DONE accumulate one line
+ * per step. Blank lines are trimmed from the end afterwards so the caller can
+ * append a fresh note without leaving a gap.
+ */
+function stripStatusNotes(bodyLines: string[]): string[] {
+  const kept = bodyLines.filter((line) => !STATUS_NOTE_RE.test(line.trim()));
+  let end = kept.length;
+  while (end > 0 && kept[end - 1].trim() === "") end--;
+  return kept.slice(0, end);
+}
+
 export function updateTaskStatus(
   repoPath: string,
   taskId: string,
@@ -163,12 +180,9 @@ export function updateTaskStatus(
           i++;
         }
 
-        // Strip old metadata blockquotes at the end
-        let bodyEnd = bodyLines.length;
-        while (bodyEnd > 0 && /^>/.test(bodyLines[bodyEnd - 1].trim())) bodyEnd--;
-        // Keep non-meta body
-        const cleanBody = bodyLines.slice(0, bodyEnd);
-        out.push(...cleanBody);
+        // Drop stale status notes so repeated transitions do not stack them.
+        // Decision and Log entries are real history and are kept.
+        out.push(...stripStatusNotes(bodyLines));
 
         // Append new metadata blockquote
         const ts = new Date().toISOString().replace("T", " ").substring(0, 16);

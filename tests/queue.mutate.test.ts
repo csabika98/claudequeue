@@ -65,6 +65,41 @@ describe("updateTaskStatus", () => {
     expect(readQueue()).toMatch(/> Started: /);
   });
 
+  it("replaces the previous status note instead of stacking duplicates", () => {
+    writeQueue("## [PENDING] Build the parser\nSome description.\n");
+
+    updateTaskStatus(repo, "build-the-parser", "ACTIVE");
+    updateTaskStatus(repo, "build-the-parser", "DONE", "finished");
+
+    const queue = readQueue();
+    expect(queue.match(/> Started: /g) ?? []).toHaveLength(0);
+    expect(queue.match(/> Completed: /g) ?? []).toHaveLength(1);
+  });
+
+  it("keeps a single status note across many transitions", () => {
+    writeQueue("## [PENDING] Build the parser\nSome description.\n");
+
+    updateTaskStatus(repo, "build-the-parser", "ACTIVE");
+    updateTaskStatus(repo, "build-the-parser", "BLOCKED", "waiting");
+    updateTaskStatus(repo, "build-the-parser", "ACTIVE");
+    updateTaskStatus(repo, "build-the-parser", "DONE", "finished");
+
+    const notes = readQueue().match(/^> (Started|Completed|Blocked):/gm) ?? [];
+    expect(notes).toHaveLength(1);
+  });
+
+  it("keeps decisions while discarding the stale status note", () => {
+    writeQueue("## [PENDING] Build the parser\nSome description.\n");
+
+    updateTaskStatus(repo, "build-the-parser", "ACTIVE");
+    appendDecision(repo, "use a regex parser", "the format is line-oriented");
+    updateTaskStatus(repo, "build-the-parser", "DONE", "finished");
+
+    const queue = readQueue();
+    expect(queue).toContain("use a regex parser");
+    expect(queue).not.toContain("> Started:");
+  });
+
   it("leaves sibling tasks untouched", () => {
     writeQueue("## [PENDING] First\nbody one\n\n## [PENDING] Second\nbody two\n");
 
